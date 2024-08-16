@@ -15,13 +15,14 @@ import java.net.http.HttpResponse;
 public class MainController {
 
     public final MainService service;
-
+    @CrossOrigin(origins = "*")
     @GetMapping("/begin")
     @ResponseStatus(HttpStatus.OK)
     public String begin(HttpServletResponse response){
         return service.begin(response);
     }
 
+    @CrossOrigin(origins = "*")
     @GetMapping("/next")
     @ResponseStatus(HttpStatus.OK)
     public String generateCity(@RequestParam("word") String playerCity,
@@ -32,6 +33,7 @@ public class MainController {
         return service.next(request, playerCity, currentCity);
     }
 
+    @CrossOrigin(origins = "*")
     @PostMapping("/end")
     @ResponseStatus(HttpStatus.OK)
     public String endGame(HttpServletRequest request){
