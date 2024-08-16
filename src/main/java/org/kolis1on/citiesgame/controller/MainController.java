@@ -32,7 +32,7 @@ public class MainController {
         return service.next(request, playerCity, currentCity);
     }
 
-    @GetMapping("/end")
+    @PostMapping("/end")
     @ResponseStatus(HttpStatus.OK)
     public String endGame(HttpServletRequest request){
         service.end(request);
