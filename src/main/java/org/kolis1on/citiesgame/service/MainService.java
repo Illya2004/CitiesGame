@@ -46,6 +46,7 @@ public class MainService {
         return randomCity;
     }
 
+    @Transactional
     public String next(HttpServletRequest request, HttpServletResponse response, String playerCity, String currentCity){
         Cookie[] cookies = request.getCookies();
         if (cookies == null) {
@@ -83,14 +84,18 @@ public class MainService {
                 .stream()
                 .map(City::getCity)
                 .toList();
+
         String resultCity = citiesService.getCitiesByLetter(lastLetterPlayer)
                 .stream()
-                .filter(word -> !playerCities.contains(word)).
-                findAny().
-                orElseThrow(() -> {
-                    end(request, response);
-                    return new WordNotFoundException("Система не знайшла слово, ви виграли!");
-                });
+                .filter(word -> !playerCities.contains(word))
+                .findAny()
+                .orElse(null);
+
+        if (resultCity == null) {
+            end(request, response);
+            throw new WordNotFoundException("Система не знайшла слово, ви виграли!");
+        }
+
         saveCity(player,resultCity);
         return resultCity;
 
@@ -98,15 +103,19 @@ public class MainService {
     @Transactional
     public void end(HttpServletRequest request, HttpServletResponse response){
         long playerId = getPlayerIdByCookies(request);
-        Player player = playerRepository.findById(playerId).get();
+        Player player = playerRepository.findById(playerId)
+                .orElseThrow(() -> new RuntimeException("Гравця не знайдено!"));
 
         cityRepository.deleteAllByPlayer(player);
         playerRepository.delete(player);
 
-        Cookie cookie = new Cookie("player-id", "");
+        Cookie cookie = new Cookie("player-id", null);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         cookie.setMaxAge(0);
+
+        cookie.setAttribute("SameSite", "None");
+        cookie.setSecure(true);
 
         response.addCookie(cookie);
     }
