@@ -29,10 +29,9 @@ public class MainService {
         Player player = new Player();
         playerRepository.save(player);
 
-        Cookie cookie = new Cookie("player-id", String.valueOf(player.getId()));
+        Cookie cookie = new Cookie(COOKIES_KEY, String.valueOf(player.getId()));
         cookie.setHttpOnly(true);
         cookie.setPath("/");
-
         response.addCookie(cookie);
 
         String randomCity = txtReader.getRandomCity();
@@ -42,9 +41,15 @@ public class MainService {
     }
 
     public String next(HttpServletRequest request, String playerCity, String currentCity){
-        long playerId = Long.parseLong(Arrays.stream(request.getCookies())
-                .filter(cookie -> COOKIES_KEY.equals(cookie.getName()))
-                .findFirst().get().getValue());
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
+            throw new RuntimeException("No cookies found in the request");
+        }
+
+        long playerId = Long.parseLong(Arrays.stream(cookies)
+                .filter(cookie -> "player-id".equals(cookie.getName()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Player ID cookie not found")).getValue());
 
         Player player = playerRepository.findById(playerId).get();
 
