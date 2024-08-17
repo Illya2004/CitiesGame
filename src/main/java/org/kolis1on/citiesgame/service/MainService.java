@@ -33,6 +33,10 @@ public class MainService {
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         cookie.setMaxAge(3600);
+
+        cookie.setAttribute("SameSite", "None");
+        cookie.setSecure(true);
+        
         response.addCookie(cookie);
 
         String randomCity = txtReader.getRandomCity();
