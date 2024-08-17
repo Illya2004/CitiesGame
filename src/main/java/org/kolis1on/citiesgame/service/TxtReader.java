@@ -19,12 +19,11 @@ import java.util.Random;
 
 @Component
 public class TxtReader {
-    private static final String FILE_PATH = Paths.get("src", "main", "resources", "cities.txt").
-            toFile().
-            getAbsolutePath();
+    private static final String FILE_PATH = System.getProperty("user.dir") + "\\src\\main\\resources\\cities.txt";
 
 
     public List<String> getCitiesByLetter(char letter) {
+
         List<String> cities = new ArrayList<>();
 
         if (!Character.isLetter(letter)) {
