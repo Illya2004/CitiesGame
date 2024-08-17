@@ -32,6 +32,7 @@ public class MainService {
         Cookie cookie = new Cookie(COOKIES_KEY, String.valueOf(player.getId()));
         cookie.setHttpOnly(true);
         cookie.setPath("/");
+        cookie.setMaxAge(3600);
         response.addCookie(cookie);
 
         String randomCity = txtReader.getRandomCity();
