@@ -36,7 +36,7 @@ public class MainService {
 
         cookie.setAttribute("SameSite", "None");
         cookie.setSecure(true);
-        
+
         response.addCookie(cookie);
 
         String randomCity = txtReader.getRandomCity();
