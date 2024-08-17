@@ -17,7 +17,7 @@ public class SpringConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         // Allow all origins
-        configuration.setAllowedOrigins(Collections.singletonList("*"));
+        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:5500"));
 
         // Allow all methods
         configuration.setAllowedMethods(Collections.singletonList("*"));
