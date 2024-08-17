@@ -26,14 +26,15 @@ public class MainController {
     @ResponseStatus(HttpStatus.OK)
     public String next(@RequestParam("word") String playerCity,
                        @RequestParam("current-city") String currentCity,
-                       HttpServletRequest request){
-        return service.next(request, playerCity, currentCity);
+                       HttpServletRequest request,
+                       HttpServletResponse response){
+        return service.next(request, response, playerCity, currentCity);
     }
 
     @PostMapping("/end")
     @ResponseStatus(HttpStatus.OK)
     public String endGame(HttpServletRequest request, HttpServletResponse response){
-        service.end(request);
+        service.end(request, response);
         return "Спасибі за гру!";
     }
 

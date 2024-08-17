@@ -46,7 +46,7 @@ public class MainService {
         return randomCity;
     }
 
-    public String next(HttpServletRequest request, String playerCity, String currentCity){
+    public String next(HttpServletRequest request, HttpServletResponse response, String playerCity, String currentCity){
         Cookie[] cookies = request.getCookies();
         if (cookies == null) {
             throw new RuntimeException("No cookies found in the request");
@@ -60,14 +60,20 @@ public class MainService {
         Player player = playerRepository.findById(playerId).get();
 
 
-        char lastLetter = playerCity.toLowerCase().charAt(playerCity.length() - 1);
+        char lastLetterCurrent = currentCity.toLowerCase().charAt(currentCity.length() - 1);
+        char lastLetterPlayer = playerCity.toLowerCase().charAt(playerCity.length() - 1);
 
-        if(lastLetter == 'и' || lastLetter == 'ь'){
-            lastLetter = playerCity.toLowerCase().charAt(playerCity.length() - 2);
+        if(lastLetterCurrent == 'и' || lastLetterCurrent == 'ь'){
+            lastLetterCurrent = currentCity.toLowerCase().charAt(currentCity.length() - 2);
         }
+
+        if(lastLetterPlayer == 'и' || lastLetterPlayer == 'ь'){
+            lastLetterPlayer = playerCity.toLowerCase().charAt(playerCity.length() - 2);
+        }
+
         char firstLetter = playerCity.toLowerCase().charAt(0);
 
-        if(currentCity.charAt(currentCity.length() - 1) != firstLetter){
+        if(lastLetterCurrent != firstLetter){
             throw new NotExpectedWordException("Слово починається з не правильної літери");
         }
 
@@ -77,12 +83,12 @@ public class MainService {
                 .stream()
                 .map(City::getCity)
                 .toList();
-        String resultCity = citiesService.getCitiesByLetter(lastLetter)
+        String resultCity = citiesService.getCitiesByLetter(lastLetterPlayer)
                 .stream()
                 .filter(word -> !playerCities.contains(word)).
                 findAny().
                 orElseThrow(() -> {
-                    end(request);
+                    end(request, response);
                     return new WordNotFoundException("Система не знайшла слово, ви виграли!");
                 });
         saveCity(player,resultCity);
@@ -90,13 +96,19 @@ public class MainService {
 
     }
     @Transactional
-    public void end(HttpServletRequest request){
+    public void end(HttpServletRequest request, HttpServletResponse response){
         long playerId = getPlayerIdByCookies(request);
         Player player = playerRepository.findById(playerId).get();
 
         cityRepository.deleteAllByPlayer(player);
         playerRepository.delete(player);
 
+        Cookie cookie = new Cookie("player-id", "");
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+
+        response.addCookie(cookie);
     }
 
     private Long getPlayerIdByCookies(HttpServletRequest request){
