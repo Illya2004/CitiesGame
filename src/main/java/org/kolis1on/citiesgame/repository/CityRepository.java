@@ -14,5 +14,5 @@ public interface CityRepository extends JpaRepository<City, Long> {
     boolean existsByCity (String city);
     List<City> findAllByPlayer(Player player);
 
-    void deleteByPlayer (Player player);
+    void deleteAllByPlayer (Player player);
 }

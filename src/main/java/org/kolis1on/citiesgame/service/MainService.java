@@ -11,6 +11,7 @@ import org.kolis1on.citiesgame.exception.WordNotFoundException;
 import org.kolis1on.citiesgame.repository.CityRepository;
 import org.kolis1on.citiesgame.repository.PlayerRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,7 +20,7 @@ import java.util.List;
 @AllArgsConstructor
 public class MainService {
 
-    private final TxtReader txtReader;
+    private final CitiesService citiesService;
     private final CityRepository cityRepository;
     private final PlayerRepository playerRepository;
 
@@ -39,7 +40,7 @@ public class MainService {
 
         response.addCookie(cookie);
 
-        String randomCity = txtReader.getRandomCity();
+        String randomCity = citiesService.getRandomCity();
         saveCity(player, randomCity);
 
         return randomCity;
@@ -76,7 +77,7 @@ public class MainService {
                 .stream()
                 .map(City::getCity)
                 .toList();
-        String resultCity = txtReader.getCitiesByLetter(lastLetter)
+        String resultCity = citiesService.getCitiesByLetter(lastLetter)
                 .stream()
                 .filter(word -> !playerCities.contains(word)).
                 findAny().
@@ -88,12 +89,14 @@ public class MainService {
         return resultCity;
 
     }
-
+    @Transactional
     public void end(HttpServletRequest request){
         long playerId = getPlayerIdByCookies(request);
         Player player = playerRepository.findById(playerId).get();
-        cityRepository.deleteByPlayer(player);
+
+        cityRepository.deleteAllByPlayer(player);
         playerRepository.delete(player);
+
     }
 
     private Long getPlayerIdByCookies(HttpServletRequest request){
