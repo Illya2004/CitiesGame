@@ -92,7 +92,6 @@ public class MainService {
                 .orElse(null);
 
         if (resultCity == null) {
-            end(request, response);
             throw new WordNotFoundException("Система не знайшла слово, ви виграли!");
         }
 
